@@ -1,12 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:quiz_app/common/button.dart';
+import 'package:quiz_app/common/complete_dialog.dart';
+import 'package:quiz_app/resource/models/question_model.dart';
 
 class QuizPage extends StatefulWidget {
   @override
-  _HomeState createState() => _HomeState();
+  _QuizPageState createState() => _QuizPageState();
 }
 
-class _HomeState extends State<QuizPage> {
+class _QuizPageState extends State<QuizPage> {
   int count = 0, correct = 0;
+  Function resetFunction;
   final tickIcon = Icon(
     Icons.check,
     color: Colors.green,
@@ -19,32 +23,62 @@ class _HomeState extends State<QuizPage> {
   List<Icon> iconList = [];
 
   final List<Question> questionsList = [
-    Question('Some cats are actually allergic to humans', true),
-    Question('You can lead a cow down stairs but not up stairs.', false),
-    Question('Approximately one quarter of human bones are in the feet.', true),
-    Question('A slug\'s blood is green.', true),
-    Question('Buzz Aldrin\'s mother\'s maiden name was \"Moon\".', true),
-    Question('It is illegal to pee in the Ocean in Portugal.', true),
     Question(
-        'No piece of square dry paper can be folded in half more than 7 times.',
-        false),
+        question: 'Some cats are actually allergic to humans',
+        correctAnswer: true),
     Question(
-        'In London, UK, if you happen to die in the House of Parliament, you are technically entitled to a state funeral, because the building is considered too sacred a place.',
-        true),
+        question: 'You can lead a cow down stairs but not up stairs.',
+        correctAnswer: false),
     Question(
-        'The loudest sound produced by any animal is 188 decibels. That animal is the African Elephant.',
-        false),
+        question: 'Approximately one quarter of human bones are in the feet.',
+        correctAnswer: true),
+    Question(question: 'A slug\'s blood is green.', correctAnswer: true),
     Question(
-        'The total surface area of two human lungs is approximately 70 square metres.',
-        true),
-    Question('Google was originally called \"Backrub\".', true),
+        question: 'Buzz Aldrin\'s mother\'s maiden name was \"Moon\".',
+        correctAnswer: true),
     Question(
-        'Chocolate affects a dog\'s heart and nervous system; a few ounces are enough to kill a small dog.',
-        true),
+        question: 'It is illegal to pee in the Ocean in Portugal.',
+        correctAnswer: true),
     Question(
-        'In West Virginia, USA, if you accidentally hit an animal with your car, you are free to take it home to eat.',
-        true),
+        question:
+            'No piece of square dry paper can be folded in half more than 7 times.',
+        correctAnswer: false),
+    Question(
+        question:
+            'In London, UK, if you happen to die in the House of Parliament, you are technically entitled to a state funeral, because the building is considered too sacred a place.',
+        correctAnswer: true),
+    Question(
+        question:
+            'The loudest sound produced by any animal is 188 decibels. That animal is the African Elephant.',
+        correctAnswer: false),
+    Question(
+        question:
+            'The total surface area of two human lungs is approximately 70 square metres.',
+        correctAnswer: true),
+    Question(
+        question: 'Google was originally called \"Backrub\".',
+        correctAnswer: true),
+    Question(
+        question:
+            'Chocolate affects a dog\'s heart and nervous system; a few ounces are enough to kill a small dog.',
+        correctAnswer: true),
+    Question(
+        question:
+            'In West Virginia, USA, if you accidentally hit an animal with your car, you are free to take it QuizPage to eat.',
+        correctAnswer: true),
   ];
+  @override
+  void initState() {
+    resetFunction = () {
+      setState(() {
+        iconList.clear();
+        count = 0;
+        correct = 0;
+        Navigator.pop(context);
+      });
+    };
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -86,7 +120,7 @@ class _HomeState extends State<QuizPage> {
           Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: <Widget>[
-              _getRaisedButton(
+              Button(
                 color: Colors.green,
                 text: 'True',
                 function: () {
@@ -96,7 +130,7 @@ class _HomeState extends State<QuizPage> {
               SizedBox(
                 height: 8,
               ),
-              _getRaisedButton(
+              Button(
                 color: Colors.red,
                 text: 'False',
                 function: () {
@@ -117,29 +151,8 @@ class _HomeState extends State<QuizPage> {
     );
   }
 
-  _getRaisedButton({Color color, String text, Function function}) {
-    return RaisedButton(
-      color: color,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(10.0),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(20),
-        child: Text(
-          text,
-          style: TextStyle(
-            color: Colors.white,
-            fontSize: 16,
-          ),
-        ),
-      ),
-      onPressed: function,
-    );
-  }
-
   _checkAnswer(bool selectedAnswer) {
     // Check if don't cross list size limit which will result in error
-
     if (count < questionsList.length - 1) {
       count++;
     } else {
@@ -147,25 +160,11 @@ class _HomeState extends State<QuizPage> {
           context: context,
           barrierDismissible: false,
           builder: (BuildContext context) {
-            return AlertDialog(
-              title: Text("🎉 Quiz Completed 🎉"),
-              content: Text("Your score is $correct"),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(5.0),
-              ),
-              actions: <Widget>[
-                _getRaisedButton(
-                    text: "Try again?",
-                    color: Colors.green,
-                    function: () {
-                      setState(() {
-                        iconList.clear();
-                        count = 0;
-                        correct = 0;
-                        Navigator.pop(context);
-                      });
-                    }),
-              ],
+            return CompleteDialog(
+              correct: correct,
+              count: count,
+              iconList: iconList,
+              resetFunction: resetFunction,
             );
           });
     }
@@ -183,12 +182,4 @@ class _HomeState extends State<QuizPage> {
       });
     }
   }
-}
-
-class Question {
-  String question;
-  bool correctAnswer;
-
-  //Constructor
-  Question(this.question, this.correctAnswer);
 }
